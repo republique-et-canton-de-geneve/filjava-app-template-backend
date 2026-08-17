@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: filjava-app-template-backend
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${GINA_ISSUER_URI}
+  datasource:
+    url: jdbc:h2:mem:filjava
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+cxf:
+  path: /services
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+  info:
+    env:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+info:
+  app:
+    name: FILJAVA Backend Template
+    description: Template backend Java destiné au développement de services applicatifs
+    version: 0.0.1-SNAPSHOT

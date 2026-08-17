@@ -1,0 +1,84 @@
+default:
+  tags:
+    - for:application-project
+    - host:restricted-container
+    - net:gold-dev
+
+workflow:
+  rules:
+    # toujours si lancé volontairement depuis l'interface
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    # jamais sur un tag
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # pour éviter le doublon lors d'un tag
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_MESSAGE =~ /^Release /'
+      when: never
+    # toujours pour merge request
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    # jamais sur les branches s'il y a des MR ouvertes
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - when: always  
+
+# ---------------------------------------------------------- #
+# --------------------  Variables  ------------------------- #
+# ---------------------------------------------------------- #
+variables:
+  MAVEN_CHECK_DEPENDENCIES_PROPERTIES_ENABLED: false
+  MAVEN_CHECK_DEPENDENCIES_ENABLED: false
+  MAVEN_CHECK_PLUGINS_ENABLED: false
+  CHECK_VARIABLES_ENABLED: false
+
+
+include:
+  - component: $COMPOSANTS_MOYENS_DEV_URL/container/full-ci-jib@2.1.0
+    inputs:
+      check_labels_enabled: false
+      jib_image_to: /ch/ge/filjava/
+      jib_image_from: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+
+sonar:
+  variables:
+    SONAR_EXCLUSIONS: "**/test/**"
+    SONAR_COVERAGE_EXCLUSIONS: "**/rest/generated/**,**/config/**,**/FiljavaApplication.java,**/ui/security/**,**/*Entity.java"
+
+nexus_iq:
+  dependencies:
+    - build_image_snapshot_or_release
+  needs:
+    - job: build_image_snapshot_or_release
+
+build_image_snapshot_or_release:
+  image: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+  variables:
+    JIB_MAVEN_PHASE: install
+    JIB_MAVEN_SKIP_TESTS: ""
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - "**/target/site/jacoco/jacoco.xml"
+
+# -------------------------------------
+# Documentation OpenAPI
+# -------------------------------------
+pages:
+  stage: deploy
+  image: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+  cache: []
+  script:
+    - mkdir -p public
+    - cp ui/src/main/resources/swagger-ui/index.html public/index.html
+    - find ui/src/main/resources/openapi -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.yml' \) -exec cp {} public/ \;
+    - printf 'window.OPENAPI_CONTRACTS = [\n' > public/swagger-config.js
+    - find ui/src/main/resources/openapi -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.yml' \) -printf '%f\n' | sort | sed 's|.*|  { url\x3a "./&", name\x3a "&" },|' >> public/swagger-config.js
+    - printf '];\n' >> public/swagger-config.js
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+

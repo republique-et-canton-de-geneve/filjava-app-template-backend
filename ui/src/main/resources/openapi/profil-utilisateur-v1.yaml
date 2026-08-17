@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: API profil utilisateur
+  version: 1.0.0
+  description: |
+    Contrat REST versionne pour les regles metier minimales du profil utilisateur.
+    L'identifiant utilisateur est fourni par le contexte applicatif et ne doit pas
+    etre transmis dans les corps de requete.
+servers:
+  - url: https://localhost:8080/services
+    description: Chemin d'exposition de l'API.
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: ProfilUtilisateur
+    description: Operations sur les donnees metier du profil utilisateur.
+
+paths:
+  /profil/date-naissance:
+    put:
+      tags:
+        - ProfilUtilisateur
+      operationId: enregistrerDateNaissance
+      summary: Enregistrer la date de naissance de l'utilisateur courant.
+      description: |
+        Enregistre la date de naissance associee a l'identifiant technique de
+        l'utilisateur courant. Aucun identifiant utilisateur n'est accepte
+        dans la requete.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DateNaissanceRequest'
+      responses:
+        '200':
+          description: Date de naissance enregistree.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilUtilisateurResponse'
+
+  /profil/majorite:
+    get:
+      tags:
+        - ProfilUtilisateur
+      operationId: consulterMajorite
+      summary: Consulter le statut de majorite de l'utilisateur courant.
+      description: Calcule le statut de majorite depuis les donnees metier du profil courant.
+      responses:
+        '200':
+          description: Statut de majorite courant.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MajoriteResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DateNaissanceRequest:
+      type: object
+      description: Donnees saisies par l'utilisateur courant.
+      required:
+        - dateNaissance
+      properties:
+        dateNaissance:
+          type: string
+          format: date
+          description: Date de naissance au format ISO 8601.
+          example: '2008-06-25'
+
+    ProfilUtilisateurResponse:
+      type: object
+      description: Donnees metier conservees par l'application pour le profil.
+      required:
+        - dateNaissance
+      properties:
+        dateNaissance:
+          type: string
+          format: date
+          description: Date de naissance enregistree.
+          example: '2008-06-25'
+
+    MajoriteResponse:
+      type: object
+      description: Resultat du calcul de majorite.
+      required:
+        - statut
+      properties:
+        statut:
+          $ref: '#/components/schemas/StatutMajorite'
+
+    StatutMajorite:
+      type: string
+      description: Statut de majorite calcule selon la date de reference du service.
+      enum:
+        - MINEUR
+        - MAJEUR
+        - INCONNU

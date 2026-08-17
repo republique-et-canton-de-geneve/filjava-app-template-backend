@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contrat OpenAPI — FILJAVA Backend Template</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.32.0/swagger-ui.css">
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5.32.0/swagger-ui-bundle.js" crossorigin></script>
+<script src="https://unpkg.com/swagger-ui-dist@5.32.0/swagger-ui-standalone-preset.js" crossorigin></script>
+<script src="./swagger-config.js"></script>
+<script>
+    window.onload = () => {
+        const contracts = window.OPENAPI_CONTRACTS || [];
+        SwaggerUIBundle({
+            url: contracts.length > 0 ? contracts[0].url : undefined,
+            urls: contracts,
+            dom_id: "#swagger-ui",
+            deepLinking: true,
+            supportedSubmitMethods: [],
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
+        });
+    };
+</script>
+</body>
+</html>
