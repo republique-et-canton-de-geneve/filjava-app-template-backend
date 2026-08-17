@@ -4,6 +4,12 @@ default:
     - host:restricted-container
     - net:gold-dev
 
+  cache:
+    untracked: false
+    key: $CI_PROJECT_ID
+    paths:
+      - .m2/repository
+
 workflow:
   rules:
     # toujours si lancé volontairement depuis l'interface
