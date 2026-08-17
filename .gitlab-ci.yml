@@ -60,7 +60,6 @@ nexus_iq:
 build_image_snapshot_or_release:
   image: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
   variables:
-    JIB_MAVEN_PHASE: install
     JIB_MAVEN_SKIP_TESTS: ""
   artifacts:
     when: always
