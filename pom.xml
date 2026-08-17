@@ -15,7 +15,7 @@
         <module>ui</module>
     </modules>
 
-    <properties>
+    <properties>x
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.11.4</junit.version>
@@ -25,6 +25,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <cxf.version>4.2.3</cxf.version>
         <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
@@ -80,6 +81,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
