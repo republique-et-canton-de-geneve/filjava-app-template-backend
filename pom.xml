@@ -15,7 +15,7 @@
         <module>ui</module>
     </modules>
 
-    <properties>x
+    <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.11.4</junit.version>
