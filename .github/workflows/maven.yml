@@ -1,0 +1,37 @@
+# This workflow builds the project with Maven and performs its Sonar (SonarCloud) analysis.
+
+name: CI with Maven
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Enable manual triggering
+  workflow_dispatch:
+
+jobs:
+  build-and-sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v2
+        with:
+          java-version: '25'
+          distribution: 'adopt'
+
+      - name: Cache Maven dependencies (delete the cache whenever the POM is changed)
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Sonar
+        run: mvn -B -U verify sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=etat-de-geneve-github -Dsonar.projectKey=republique-et-canton-de-geneve_filjava-app-template-backend
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
