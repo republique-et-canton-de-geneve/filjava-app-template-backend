@@ -12,6 +12,8 @@
 <script src="https://unpkg.com/swagger-ui-dist@5.32.0/swagger-ui-standalone-preset.js" crossorigin></script>
 <script src="./swagger-config.js"></script>
 <script>
+    const SwaggerUIBundle = window.SwaggerUIBundle;
+    const SwaggerUIStandalonePreset = window.SwaggerUIStandalonePreset;
     window.onload = () => {
         const contracts = window.OPENAPI_CONTRACTS || [];
         SwaggerUIBundle({
