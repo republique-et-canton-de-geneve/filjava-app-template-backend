@@ -1,26 +1,23 @@
 spring:
   application:
     name: filjava-app-template-backend
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${GINA_ISSUER_URI}
+
   datasource:
-    url: jdbc:h2:mem:filjava
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
 
 cxf:
   path: /services
@@ -36,6 +33,17 @@ management:
       show-details: never
       probes:
         enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
+
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
   metrics:
     tags:

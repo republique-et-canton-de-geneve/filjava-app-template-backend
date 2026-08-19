@@ -144,6 +144,7 @@ Le template nécessite :
 - Java 25
 - Maven 3.9 ou supérieur
 - Git
+- Un accès à une base de données PostgreSQL
 
 L'utilisation d'IntelliJ IDEA est recommandée.
 
@@ -184,7 +185,8 @@ cd ui
 mvn spring-boot:run
 ```
 
-L'application démarre avec une base H2 embarquée et expose les ressources REST via Apache CXF.
+L'application utilise une base de données PostgreSQL configurée via la datasource
+Spring Boot et expose les ressources REST via Apache CXF.
 
 Elle expose également des endpoints techniques Spring Boot Actuator permettant
 le suivi de l'état de l'application.
@@ -193,31 +195,32 @@ La validation des jetons nécessite l'accès au fournisseur OIDC configuré.
 
 ## Configuration
 
-L'application utilise actuellement une base H2 embarquée pour permettre
-l'exécution locale du template sans dépendance externe.
+L'application utilise une base de données PostgreSQL externe.
 
-Avant de démarrer l'application, définir la variable d'environnement suivante :
+Avant de démarrer l'application, définir les variables d'environnement suivantes :
 
 ```text
 GINA_ISSUER_URI=https://***
+DB_HOST=***
+DB_NAME=***
+DB_USERNAME=***
+DB_PASSWORD=***
 ```
 
-Cette URL est propre à l'environnement. Aucun client secret n'est nécessaire :
+Les valeurs sont propres à l'environnement et ne doivent pas être versionnées.
+
+Aucun client secret n'est nécessaire :
 le backend valide des Bearer tokens et n'initie pas de connexion OIDC.
 
 La configuration technique de l'application est centralisée dans :
 ui/src/main/resources/application.yml
 
 Elle contient notamment :
-- La configuration de la datasource
+- La configuration de la datasource PostgreSQL
 - La configuration JPA/Hibernate
-- La configuration du serveur REST Apache 
+- La configuration du serveur REST Apache CXF
 - La configuration des endpoints techniques Spring Boot Actuator
 - Les paramètres nécessaires au démarrage local
-
-Les futurs hostnames, identifiants, secrets et autres paramètres dépendants
-de l'environnement devront être injectés via des variables d'environnement
-et ne jamais être versionnés.
 
 Le raccordement à un annuaire utilisateur (VLDAP) ne fait pas partie de ce squelette.
 
@@ -241,6 +244,11 @@ GET /actuator/prometheus
 ```
 
 Le endpoint `health` permet de vérifier l'état général de l'application.
+
+La disponibilité de la base de données PostgreSQL est prise en compte dans
+l'état de readiness. En cas d'indisponibilité de la base de données,
+l'application reste vivante mais n'est plus considérée comme prête à recevoir
+du trafic.
 
 Des endpoints dédiés aux probes de disponibilité sont également exposés afin
 de permettre leur utilisation par une plateforme d'orchestration telle
