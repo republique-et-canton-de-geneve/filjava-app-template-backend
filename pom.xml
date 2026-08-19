@@ -15,7 +15,15 @@
         <module>ui</module>
     </modules>
 
+    <scm>
+        <connection>scm:git:${git.repository.url}</connection>
+        <developerConnection>scm:git:${git.repository.url}</developerConnection>
+        <url>${git.repository.url}</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
+        <git.repository.url>${GIT_REPOSITORY_URL}</git.repository.url>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.11.4</junit.version>
