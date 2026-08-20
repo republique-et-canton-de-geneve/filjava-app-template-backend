@@ -15,9 +15,9 @@ workflow:
     # toujours si lancé volontairement depuis l'interface
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
-    # jamais sur un tag
+    # toujours sur un tag pour publier la release de l'image
     - if: '$CI_COMMIT_TAG'
-      when: never
+      when: always
     # pour éviter le doublon lors d'un tag
     - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_MESSAGE =~ /^Release /'
       when: never
