@@ -181,6 +181,9 @@ Le test de génération utilise un répertoire temporaire, vérifie qu'aucun anc
 identifiant ou marqueur Backstage ne subsiste et exécute `mvn clean verify` si
 Maven est disponible.
 
+La procédure complète, notamment la conservation et l'inspection du projet
+généré, est disponible dans [`backstage/README.md`](backstage/README.md#test-local).
+
 ## Vérification
 
 Pour compiler le projet et exécuter l'ensemble des tests :
