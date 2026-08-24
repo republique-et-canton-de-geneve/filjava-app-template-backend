@@ -150,20 +150,36 @@ L'utilisation d'IntelliJ IDEA est recommandée.
 
 ## Créer une nouvelle application à partir du template
 
-Pour créer une nouvelle application à partir de ce template :
+Le fichier `template.yaml` décrit un Software Template Backstage. Depuis la page
+**Create**, renseigner :
 
-1. Créer un nouveau projet GitLab à partir du template **FILJAVA** (`Create from template`).
-2. Cloner le nouveau dépôt localement.
-3. Adapter les coordonnées Maven dans le `pom.xml` parent :
-    * Modifier le `groupId`
-    * Modifier le `artifactId`
-    * Conserver une version de type `1.0.0-SNAPSHOT`
-    * Adapter le `name` s'il est utilisé
-4. Si le projet comporte plusieurs modules, vérifier que les références au projet parent (`<parent>`) sont correctement mises à jour dans les `pom.xml` des modules enfants.
-5. Renommer le package Java principal afin qu'il corresponde à la nouvelle application.
+- l'identifiant technique en minuscules et tirets, par exemple
+  `gestion-dossiers` ;
+- le nom lisible et la description de l'application ;
+- un package Java racine en minuscules, par exemple `ch.ge.gestiondossiers` ;
+- l'équipe propriétaire et le système sélectionnés dans le catalogue ;
+- la destination du dépôt GitLab.
 
-Une fois ces étapes réalisées, suivre les sections **Vérification** et
-**Lancement de l'application** ci-dessous.
+Backstage adapte automatiquement les coordonnées Maven, le nom Spring, les
+métadonnées, les packages Java et la classe principale. Pour
+`gestion-dossiers`, la classe principale devient
+`GestionDossiersApplication`. Il crée ensuite le dépôt et enregistre le fichier
+`catalog-info.yaml` généré dans le Software Catalog.
+
+Les règles de transformation, le test local et les informations nécessaires à
+l'installation de l'action personnalisée sont documentés dans
+`backstage/README.md`.
+
+Pour tester localement le rendu avant son intégration à Backstage :
+
+```shell
+npm test --prefix backstage/scaffolder-backend-module-filjava
+node backstage/scripts/test-template.mjs
+```
+
+Le test de génération utilise un répertoire temporaire, vérifie qu'aucun ancien
+identifiant ou marqueur Backstage ne subsiste et exécute `mvn clean verify` si
+Maven est disponible.
 
 ## Vérification
 

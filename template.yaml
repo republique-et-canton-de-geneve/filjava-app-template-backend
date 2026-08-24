@@ -1,0 +1,127 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: filjava-backend-java25
+  title: Backend FILJAVA Java 25
+  description: Backend Java 25 minimal fondé sur une architecture hexagonale
+  tags:
+    - java
+    - spring-boot
+    - backend
+spec:
+  owner: group:default/filjava
+  type: service
+  parameters:
+    - title: Identité de l'application
+      required:
+        - componentId
+        - componentName
+        - description
+        - javaPackage
+      properties:
+        componentId:
+          title: Identifiant technique
+          description: Nom utilisé par Backstage, Maven, Spring et GitLab
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+          maxLength: 63
+        componentName:
+          title: Nom de l'application
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          title: Description
+          type: string
+          minLength: 1
+          maxLength: 200
+        javaPackage:
+          title: Package Java racine
+          description: Par exemple ch.ge.police
+          type: string
+          pattern: '^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)+$'
+
+    - title: Catalogue Backstage
+      required:
+        - owner
+        - system
+      properties:
+        owner:
+          title: Équipe responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind:
+                - Group
+        system:
+          title: Système
+          type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind:
+                - System
+
+    - title: Dépôt GitLab
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Destination du dépôt
+          type: string
+          ui:field: RepoUrlPicker
+
+  steps:
+    - id: fetchSource
+      name: Charger le template
+      action: fetch:template
+      input:
+        url: .
+        copyWithoutRender:
+          - .github/**
+          - backstage/**
+          - AGENTS.md
+          - template.yaml
+          - ticket.md
+        values:
+          componentId: ${{ parameters.componentId }}
+          componentName: ${{ parameters.componentName }}
+          description: ${{ parameters.description }}
+          javaPackage: ${{ parameters.javaPackage }}
+          owner: ${{ parameters.owner }}
+          system: ${{ parameters.system }}
+
+    - id: renameJava
+      name: Adapter l'identité Java et Maven
+      action: filjava:javaPackage:rename
+      input:
+        componentId: ${{ parameters.componentId }}
+        componentName: ${{ parameters.componentName }}
+        description: ${{ parameters.description }}
+        sourcePackage: ch.ge.filjava.apptemplatebackend
+        targetPackage: ${{ parameters.javaPackage }}
+        sourceMainClass: FiljavaApplication
+
+    - id: publishGitlab
+      name: Créer le dépôt GitLab
+      action: publish:gitlab
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+
+    - id: registerCatalog
+      name: Enregistrer le composant
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publishGitlab.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Dépôt GitLab
+        url: ${{ steps.publishGitlab.output.remoteUrl }}
+      - title: Composant Backstage
+        icon: catalog
+        entityRef: ${{ steps.registerCatalog.output.entityRef }}
