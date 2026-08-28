@@ -9,8 +9,8 @@ metadata:
     - spring-boot
     - backend
 spec:
-  owner: group:default/filjava
-  type: service
+  owner: group:default/developpeur-java
+  type: template-filliere
   parameters:
     - title: Identité de l'application
       required:
@@ -65,20 +65,27 @@ spec:
 
     - title: Dépôt GitLab
       required:
-        - repoUrl
+        - selectedGroup
       properties:
-        repoUrl:
+        selectedGroup:
           title: Destination du dépôt
           type: string
-          ui:field: RepoUrlPicker
+          ui:field: RepoOwnerPicker
+          ui:options:
+            host: git.devops.etat-ge.ch
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+              additionalScopes:
+                gitlab:
+                  - api
 
   steps:
-    - id: fetchSource
+    - action: fetch:template
+      id: fetchSource
       name: Charger le template
-      action: fetch:template
       input:
         url: .
-        copyWithoutRender:
+        copyWithoutTemplating:
           - .github/**
           - backstage/**
           - AGENTS.md
@@ -92,9 +99,24 @@ spec:
           owner: ${{ parameters.owner }}
           system: ${{ parameters.system }}
 
-    - id: renameJava
+    - action: fs:delete
+      id: deleteGitMetadata
+      name: Supprimer les métadonnées Git du template
+      input:
+        files:
+          - .git
+
+    - action: fs:rename
+      id: renameFiles
+      name: Rename files
+      input:
+        files:
+          - from: portaildev-catalog-info.yaml.njk
+            to: portaildev-catalog-info.yaml
+
+    - action: filjava:javaPackage:rename
+      id: renameJava
       name: Adapter l'identité Java et Maven
-      action: filjava:javaPackage:rename
       input:
         componentId: ${{ parameters.componentId }}
         componentName: ${{ parameters.componentName }}
@@ -103,20 +125,22 @@ spec:
         targetPackage: ${{ parameters.javaPackage }}
         sourceMainClass: FiljavaApplication
 
-    - id: publishGitlab
+    - action: publish:gitlab
+      id: publishGitlab
       name: Créer le dépôt GitLab
-      action: publish:gitlab
       input:
-        repoUrl: ${{ parameters.repoUrl }}
-        description: ${{ parameters.description }}
+        repoUrl: git.devops.etat-ge.ch?owner=${{parameters.selectedGroup}}&repo=${{ parameters.componentId }}
+        repoVisibility: internal
         defaultBranch: main
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        skipExisting: true
 
     - id: registerCatalog
       name: Enregistrer le composant
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publishGitlab.output.repoContentsUrl }}
-        catalogInfoPath: /catalog-info.yaml
+        catalogInfoPath: /portaildev-catalog-info.yaml
 
   output:
     links:
