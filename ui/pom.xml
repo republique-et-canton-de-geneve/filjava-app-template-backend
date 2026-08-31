@@ -92,6 +92,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <finalName>filjava_app_template_ui</finalName>
         <plugins>
             <plugin>
