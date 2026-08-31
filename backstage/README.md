@@ -3,6 +3,32 @@
 Ce dossier contient l'action personnalisée appelée par `template.yaml` et les
 outils qui permettent de tester la génération sans publier de dépôt.
 
+## Générer une application sans Backstage
+
+En attendant l'intégration dans Backstage, le script paramétrable suivant crée
+une application dans un nouveau dossier situé hors du dépôt du template :
+
+```powershell
+node backstage/scripts/generate-project.mjs `
+  --output ..\gestion-dossiers `
+  --component-id gestion-dossiers `
+  --component-name "Gestion des dossiers" `
+  --description "Service de gestion des dossiers" `
+  --java-package ch.ge.gestiondossiers `
+  --owner group:default/equipe-dossiers `
+  --system system:default/dossiers
+```
+
+Le dossier de destination ne doit pas déjà exister. Le script copie le
+template, adapte les coordonnées Maven, les packages Java, la classe principale,
+la configuration Spring et `catalog-info.yaml`, puis retire les fichiers propres
+au template. Il termine par `mvn clean verify` ; l'option `--skip-verify` permet
+de différer cette vérification.
+
+La commande `node backstage/scripts/generate-project.mjs --help` affiche la
+liste des paramètres. Après génération, le nouveau dossier peut être initialisé
+comme un dépôt Git indépendant.
+
 ## À installer dans le backend Backstage
 
 Le dossier `scaffolder-backend-module-filjava` est un module backend Backstage.

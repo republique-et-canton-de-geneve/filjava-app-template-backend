@@ -150,6 +150,10 @@ L'utilisation d'IntelliJ IDEA est recommandée.
 
 ## Créer une nouvelle application à partir du template
 
+Tant que le template n'est pas intégré dans Backstage, une application peut
+être générée localement avec la commande paramétrable documentée dans
+[`backstage/README.md`](backstage/README.md#générer-une-application-sans-backstage).
+
 Le fichier `template.yaml` décrit un Software Template Backstage. Depuis la page
 **Create**, renseigner :
 
