@@ -35,9 +35,11 @@ management:
         enabled: true
       group:
         liveness:
-          include: livenessState
+          include: livenessState,applicationStatus
+          show-details: always
         readiness:
-          include: readinessState,db
+          include: readinessState,databaseStatus
+          show-details: always
 
   health:
     livenessstate:
@@ -62,4 +64,4 @@ info:
   app:
     name: FILJAVA Backend Template
     description: Template backend Java destiné au développement de services applicatifs
-    version: 0.0.1-SNAPSHOT
+    version: "@project.version@"
