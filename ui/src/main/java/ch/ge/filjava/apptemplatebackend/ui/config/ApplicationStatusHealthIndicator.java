@@ -5,12 +5,12 @@ import org.springframework.boot.health.contributor.Health;
 import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.stereotype.Component;
 
-@Component("applicationLiveness")
-public class ApplicationLivenessHealthIndicator implements HealthIndicator {
+@Component("applicationStatus")
+public class ApplicationStatusHealthIndicator implements HealthIndicator {
 
     private final String version;
 
-    public ApplicationLivenessHealthIndicator(
+    public ApplicationStatusHealthIndicator(
             @Value("${info.app.version}") String version) {
         this.version = version;
     }

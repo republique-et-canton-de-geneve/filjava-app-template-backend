@@ -35,13 +35,15 @@ management:
         enabled: true
       group:
         liveness:
-          include: applicationLiveness
+          include: livenessState,applicationStatus
           show-details: always
         readiness:
-          include: readinessState,db
+          include: readinessState,databaseStatus
           show-details: always
 
   health:
+    livenessstate:
+      enabled: true
     readinessstate:
       enabled: true
 
