@@ -1,6 +1,7 @@
 # FILJAVA - Template backend
 
-Template Java 25 minimal fondé sur une architecture hexagonale.
+Ce projet est un template Java 25 à destination des personnes souhaitant initier
+un projet Java sur une base minimale fondée sur une architecture hexagonale.
 
 Le modèle d'exemple représente une tranche de la future V1 sans l'implémenter :
 un utilisateur authentifié peut enregistrer sa date de naissance et consulter
