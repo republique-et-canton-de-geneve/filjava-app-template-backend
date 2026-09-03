@@ -145,7 +145,8 @@ Le template nécessite :
 - Java 25
 - Maven 3.9 ou supérieur
 - Git
-- Un accès à une base de données PostgreSQL
+- Podman pour utiliser une base de données PostgreSQL locale, ou un accès à une
+  base de données PostgreSQL externe
 
 L'utilisation d'IntelliJ IDEA est recommandée.
 
@@ -200,6 +201,134 @@ mvn clean verify
 Cette commande compile les trois modules, exécute les tests unitaires du domaine
 et les scénarios Cucumber majeur/mineur.
 
+## Base de données PostgreSQL locale
+
+Une base PostgreSQL peut être démarrée localement avec Podman.
+
+### 1. Installer et démarrer Podman
+
+Vérifier l'installation :
+
+```shell
+podman --version
+```
+
+Si nécessaire, installer Podman avec Scoop :
+
+```shell
+scoop install podman
+```
+
+Initialiser et démarrer la Podman Machine si elle n'existe pas :
+
+```shell
+podman machine init
+podman machine start
+```
+
+Si elle existe déjà :
+
+```shell
+podman machine start
+```
+
+### 2. Créer le volume PostgreSQL
+
+Le volume permet de conserver les données même après la suppression du conteneur.
+
+```shell
+podman volume create <nom_volume_postgres>
+```
+
+### 3. Télécharger l'image PostgreSQL
+
+Utiliser la même version que la base PostgreSQL cible :
+
+```shell
+podman pull postgres:<version_postgres_DB>
+```
+
+> Derrière un proxy d'entreprise réalisant une inspection HTTPS, il peut être
+> nécessaire de configurer le proxy dans la Podman Machine et d'utiliser
+> `--tls-verify=false` pour télécharger l'image.
+
+### 4. Démarrer PostgreSQL
+
+Pour PostgreSQL **avant la version 18** :
+
+```shell
+podman run -d --name <nom_conteneur_postgres> \
+  -e POSTGRES_DB=<DB_NAME> \
+  -e POSTGRES_USER=<DB_USERNAME> \
+  -e POSTGRES_PASSWORD=<DB_PASSWORD> \
+  -p 5432:5432 \
+  -v <nom_volume_postgres>:/var/lib/postgresql/data \
+  postgres:<version_postgres_DB>
+```
+
+Pour PostgreSQL **18 et supérieur** :
+
+```shell
+podman run -d --name <nom_conteneur_postgres> \
+  -e POSTGRES_DB=<DB_NAME> \
+  -e POSTGRES_USER=<DB_USERNAME> \
+  -e POSTGRES_PASSWORD=<DB_PASSWORD> \
+  -p 5432:5432 \
+  -v <nom_volume_postgres>:/var/lib/postgresql \
+  postgres:<version_postgres_DB>
+```
+
+Vérifier que PostgreSQL est démarré :
+
+```shell
+podman ps
+podman logs <nom_conteneur_postgres>
+```
+
+Les logs doivent contenir :
+
+```text
+database system is ready to accept connections
+```
+
+### 5. Initialiser la base
+
+Le template fournit les scripts SQL nécessaires à l'initialisation de la base
+dans `infra/src/main/resources/db/migration`.
+
+Exécuter le ou les scripts SQL présents dans ce répertoire :
+
+```shell
+podman exec -i <nom_conteneur_postgres> \
+  psql -U <DB_USERNAME> -d <DB_NAME> \
+  < infra/src/main/resources/db/migration/<nom_du_script>.sql
+```
+
+Vérifier les tables :
+
+```shell
+podman exec -it <nom_conteneur_postgres> psql -U <DB_USERNAME> -d <DB_NAME>
+```
+
+Puis :
+
+```sql
+\dt
+```
+
+### 6. Configurer Spring Boot
+
+Pour utiliser la base PostgreSQL locale, renseigner les variables d'environnement :
+
+```text
+DB_HOST=localhost
+DB_NAME=<DB_NAME>
+DB_USERNAME=<DB_USERNAME>
+DB_PASSWORD=<DB_PASSWORD>
+```
+
+L'application se connecte alors à PostgreSQL via `localhost:5432`.
+
 ## Lancement de l'application
 
 Pour démarrer l'application localement :
@@ -219,7 +348,8 @@ La validation des jetons nécessite l'accès au fournisseur OIDC configuré.
 
 ## Configuration
 
-L'application utilise une base de données PostgreSQL externe.
+L'application utilise une base de données PostgreSQL. Celle-ci peut être une
+base locale démarrée avec Podman ou une base externe selon l'environnement.
 
 Avant de démarrer l'application, définir les variables d'environnement suivantes :
 
@@ -231,13 +361,16 @@ DB_USERNAME=***
 DB_PASSWORD=***
 ```
 
+Pour une base PostgreSQL locale démarrée avec Podman, voir la section
+[Base de données PostgreSQL locale](#base-de-données-postgresql-locale).
+
 Les valeurs sont propres à l'environnement et ne doivent pas être versionnées.
 
 Aucun client secret n'est nécessaire :
 le backend valide des Bearer tokens et n'initie pas de connexion OIDC.
 
 La configuration technique de l'application est centralisée dans :
-ui/src/main/resources/application.yml
+`ui/src/main/resources/application.yml`
 
 Elle contient notamment :
 - La configuration de la datasource PostgreSQL
@@ -274,8 +407,8 @@ l'état de readiness. En cas d'indisponibilité de la base de données,
 l'application reste vivante mais n'est plus considérée comme prête à recevoir
 du trafic.
 
-Des endpoints dédiés aux probes de disponibilité sont également exposés afin
-de permettre leur utilisation par une plateforme d'orchestration telle
+Des endpoints dédiés aux probes de disponibilité sont également exposés afin de
+permettre leur utilisation par une plateforme d'orchestration telle
 qu'OpenShift :
 
 ```text
