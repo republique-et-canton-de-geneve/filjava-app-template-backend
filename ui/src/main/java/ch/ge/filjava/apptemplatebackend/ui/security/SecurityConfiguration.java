@@ -28,7 +28,7 @@ public class SecurityConfiguration {
                         .anyRequest().permitAll()
                 )
                 .cors(withDefaults())
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(csrf -> csrf.csrfTokenRepository(new CookieCsrfTokenRepository()))
                 .oauth2Login(oauth2 -> oauth2
                         .redirectionEndpoint(endpoint -> endpoint.baseUri("/auth/callback/*"))
                         .successHandler((request, response, authentication) -> response.sendRedirect(frontendUrl)))
