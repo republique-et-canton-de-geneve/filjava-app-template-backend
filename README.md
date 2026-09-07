@@ -355,6 +355,9 @@ Avant de démarrer l'application, définir les variables d'environnement suivant
 
 ```text
 GINA_ISSUER_URI=https://***
+GINA_CLIENT_ID=***
+GINA_CLIENT_SECRET=***
+FRONTEND_URL=***
 DB_HOST=***
 DB_NAME=***
 DB_USERNAME=***
@@ -366,8 +369,8 @@ Pour une base PostgreSQL locale démarrée avec Podman, voir la section
 
 Les valeurs sont propres à l'environnement et ne doivent pas être versionnées.
 
-Aucun client secret n'est nécessaire :
-le backend valide des Bearer tokens et n'initie pas de connexion OIDC.
+Le secret du client GINA est utilisé uniquement par le backend pour initier la
+connexion OIDC. Il ne doit jamais être exposé au frontend ni versionné.
 
 La configuration technique de l'application est centralisée dans :
 `ui/src/main/resources/application.yml`
