@@ -201,6 +201,27 @@ mvn clean verify
 Cette commande compile les trois modules, exécute les tests unitaires du domaine
 et les scénarios Cucumber majeur/mineur.
 
+## Licences des dépendances
+
+Le fichier [`THIRD-PARTY-LICENSES.md`](THIRD-PARTY-LICENSES.md) recense les licences
+des dépendances utilisées par le projet, y compris leurs dépendances transitives.
+
+Il est généré avec le plugin Maven `license-maven-plugin` :
+
+```shell
+mvn license:aggregate-add-third-party
+```
+
+Le fichier généré contient également, le cas échéant, les modules Maven internes
+présents dans l'arbre des dépendances (`core`, `infra`). Ces modules font partie
+du projet et ne constituent pas des dépendances tierces.
+
+L'en-tête du fichier rappelle que le projet est distribué sous licence
+Apache License 2.0. Le fichier étant généré automatiquement, toute modification
+manuelle du contenu généré doit être évitée ; l'en-tête est à ajouter lors de la
+génération du fichier si nécessaire.
+
+
 ## Base de données PostgreSQL locale
 
 Une base PostgreSQL peut être démarrée localement avec Podman.
