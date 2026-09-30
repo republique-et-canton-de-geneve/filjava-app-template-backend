@@ -195,11 +195,13 @@ généré, est disponible dans [`backstage/README.md`](backstage/README.md#test-
 Pour compiler le projet et exécuter l'ensemble des tests :
 
 ```shell
-mvn clean verify
+mvn clean install
 ```
 
 Cette commande compile les trois modules, exécute les tests unitaires du domaine
-et les scénarios Cucumber majeur/mineur.
+et les scénarios Cucumber majeur/mineur, puis installe les artefacts dans le
+dépôt local Maven. Elle est nécessaire pour que `spring-boot:run` puisse
+résoudre les dépendances entre modules, notamment dans certains IDE comme Eclipse.
 
 ## Licences des dépendances
 
@@ -228,16 +230,14 @@ Une base PostgreSQL peut être démarrée localement avec Podman.
 
 ### 1. Installer et démarrer Podman
 
+> La procédure détaillée pour l'installation de WSL 2 et Podman Desktop est
+> disponible sur le wiki en recherchant :
+> **Podman Desktop (et Podman)**.
+
 Vérifier l'installation :
 
 ```shell
 podman --version
-```
-
-Si nécessaire, installer Podman avec Scoop :
-
-```shell
-scoop install podman
 ```
 
 Initialiser et démarrer la Podman Machine si elle n'existe pas :
@@ -270,8 +270,8 @@ podman pull postgres:<version_postgres_DB>
 ```
 
 > Derrière un proxy d'entreprise réalisant une inspection HTTPS, il peut être
-> nécessaire de configurer le proxy dans la Podman Machine et d'utiliser
-> `--tls-verify=false` pour télécharger l'image.
+> nécessaire de configurer le proxy dans la Podman Machine. La procédure est
+> documentée dans **Podman et Podman Desktop : Installation avancée : configuration réseau**.
 
 ### 4. Démarrer PostgreSQL
 
@@ -317,12 +317,10 @@ database system is ready to accept connections
 Le template fournit les scripts SQL nécessaires à l'initialisation de la base
 dans `infra/src/main/resources/db/migration`.
 
-Exécuter le ou les scripts SQL présents dans ce répertoire :
+Exécuter le ou les scripts SQL présents dans ce répertoire (PowerShell) :
 
 ```shell
-podman exec -i <nom_conteneur_postgres> \
-  psql -U <DB_USERNAME> -d <DB_NAME> \
-  < infra/src/main/resources/db/migration/<nom_du_script>.sql
+Get-Content infra/src/main/resources/db/migration/<nom_du_script>.sql | podman exec -i <nom_conteneur_postgres> psql -U <DB_USERNAME> -d <DB_NAME>
 ```
 
 Vérifier les tables :
