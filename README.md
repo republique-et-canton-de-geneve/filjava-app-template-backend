@@ -190,6 +190,19 @@ Maven est disponible.
 La procédure complète, notamment la conservation et l'inspection du projet
 généré, est disponible dans [`backstage/README.md`](backstage/README.md#test-local).
 
+## Image Docker
+
+GitLab CI utilise `full-ci-buildah` avec Sonar et Nexus IQ. Par défaut, Maven et
+le conteneur utilisent l'ancienne image Java 25 de Jib ; `JAVA_RUNTIME_IMAGE`
+peut être remplacée par une image d'exécution plus légère.
+
+En local (PowerShell), définir `JAVA_RUNTIME_IMAGE`, puis lancer depuis la racine :
+
+```powershell
+mvn clean verify
+docker build --build-arg JAVA_RUNTIME_IMAGE=$env:JAVA_RUNTIME_IMAGE -t filjava-backend .
+```
+
 ## Vérification
 
 Pour compiler le projet et exécuter l'ensemble des tests :
