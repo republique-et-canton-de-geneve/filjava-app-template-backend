@@ -167,6 +167,7 @@
                 <configuration>
                     <ports>
                         <port>8080</port>
+                        <port>5701</port>
                     </ports>
                     <jvmFlags>
                         <jvmFlag>-Xms512m</jvmFlag>
