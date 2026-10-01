@@ -32,7 +32,6 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <cxf.version>4.2.3</cxf.version>
-        <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
         <jacoco.version>0.8.13</jacoco.version>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -145,62 +144,9 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>${jib-maven-plugin.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>${jib-maven-plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.google.cloud.tools</groupId>
-                        <artifactId>jib-ownership-extension-maven</artifactId>
-                        <version>0.1.0</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <ports>
-                        <port>8080</port>
-                    </ports>
-                    <jvmFlags>
-                        <jvmFlag>-Xms512m</jvmFlag>
-                        <jvmFlag>-Xmx1024m</jvmFlag>
-                        <jvmFlag>-Dspring.profiles.active=prod</jvmFlag>
-                        <jvmFlag>-Dfile.encoding=UTF-8</jvmFlag>
-                    </jvmFlags>
-                    <from>
-                        <image>${jib_image_from}</image>
-                    </from>
-                    <to>
-                        <image>${jib_image_to}</image>
-                        <tags>
-                            <tag>latest</tag>
-                            <tag>${jib_image_to_tag}</tag>
-                        </tags>
-                    </to>
-                    <container>
-                        <user>gva</user>
-                        <mainClass>ch.ge.filjava.apptemplatebackend.ui.main.FiljavaApplication</mainClass>
-                        <appRoot>${jib.container.appRoot}</appRoot>
-                        <labels>
-                            <org.opencontainers.image.title>Image de test ci-validation-container-full-ci-jib</org.opencontainers.image.title>
-                            <org.opencontainers.image.version>${project.version}</org.opencontainers.image.version>
-                            <org.opencontainers.image.description>Image de l'application ci-validation-container-full-ci-jib</org.opencontainers.image.description>
-                            <org.opencontainers.image.source>${jib_image_from}</org.opencontainers.image.source>
-                            <org.opencontainers.image.vendor>OCSIN</org.opencontainers.image.vendor>
-                            <org.opencontainers.image.licenses>TO BE DEFINED</org.opencontainers.image.licenses>
-                            <ch.ge.ocsin.image.application>TO BE DEFINED</ch.ge.ocsin.image.application>
-                            <org.opencontainers.image.base.name>TO BE DEFINED</org.opencontainers.image.base.name>
-                        </labels>
-                    </container>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

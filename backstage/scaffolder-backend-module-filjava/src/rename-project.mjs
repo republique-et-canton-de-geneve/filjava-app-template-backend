@@ -116,8 +116,6 @@ export async function renameJavaProject(options) {
     [sourceMainClass, targetMainClass],
     ['FILJAVA Backend Template', componentName.trim()],
     ['Template backend Java destiné au développement de services applicatifs', description.trim()],
-    ['Image de test ci-validation-container-full-ci-jib', componentName.trim()],
-    ['Image de l’application ci-validation-container-full-ci-jib', description.trim()],
   ]);
 
   for (const file of await listFiles(root)) {

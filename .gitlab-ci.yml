@@ -33,47 +33,47 @@ workflow:
 # --------------------  Variables  ------------------------- #
 # ---------------------------------------------------------- #
 variables:
-  MAVEN_CHECK_DEPENDENCIES_PROPERTIES_ENABLED: false
-  MAVEN_CHECK_DEPENDENCIES_ENABLED: false
-  MAVEN_CHECK_PLUGINS_ENABLED: false
-  CHECK_VARIABLES_ENABLED: false
-
+  MAVEN_BUILD_IMAGE: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+  JAVA_RUNTIME_IMAGE: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
 
 include:
-  - component: $COMPOSANTS_MOYENS_DEV_URL/container/full-ci-jib@2.1.0
+  - component: $COMPOSANTS_MOYENS_DEV_URL/container/full-ci-buildah@2.1.0
     inputs:
-      check_labels_enabled: false
-      jib_image_to: /ch/ge/filjava/
-      jib_image_from: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+      buildah_image_name: ch/ge/filjava/$CI_PROJECT_NAME
+      buildah_job_before_script_custom:
+        - export BUILDAH_BUILD_ARGS="--build-arg JAVA_RUNTIME_IMAGE=$JAVA_RUNTIME_IMAGE"
+
+verify:
+  stage: build
+  image: $MAVEN_BUILD_IMAGE
+  script:
+    - mvn -B -ntp clean verify
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ui/target/*.jar
+      - "**/target/classes/**"
+      - "**/target/site/jacoco/jacoco.xml"
+
+build_image_snapshot_or_release:
+  needs:
+    - job: verify
+      artifacts: true
 
 sonar:
   variables:
     SONAR_EXCLUSIONS: "**/test/**"
     SONAR_COVERAGE_EXCLUSIONS: "**/rest/generated/**,**/config/**,**/FiljavaApplication.java,**/ui/security/**,**/*Entity.java"
-
-nexus_iq:
-  dependencies:
-    - build_image_snapshot_or_release
   needs:
-    - job: build_image_snapshot_or_release
-
-build_image_snapshot_or_release:
-  image: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
-  variables:
-    JIB_MAVEN_PHASE: "clean deploy"
-    JIB_MAVEN_SKIP_TESTS: ""
-  artifacts:
-    when: always
-    expire_in: 1 day
-    paths:
-      - "**/target/site/jacoco/jacoco.xml"
+    - job: verify
+      artifacts: true
 
 # -------------------------------------
 # Documentation OpenAPI
 # -------------------------------------
 pages:
-  stage: deploy
-  image: $DOCKER_URL/ch/ge/cti/build/ubi-jdk-maven-node:U10.1-20251124_121200-J25-M3.9.12-N24.13.0
+  stage: .post
+  image: $MAVEN_BUILD_IMAGE
   cache: []
   script:
     - mkdir -p public
