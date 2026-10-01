@@ -145,8 +145,8 @@ Le template nécessite :
 - Java 25
 - Maven 3.9 ou supérieur
 - Git
-- Podman pour utiliser une base de données PostgreSQL locale, ou un accès à une
-  base de données PostgreSQL externe
+- Podman pour construire l'image de l'application ou utiliser une base de
+  données PostgreSQL locale, ou un accès à une base de données PostgreSQL externe
 
 L'utilisation d'IntelliJ IDEA est recommandée.
 
@@ -192,15 +192,15 @@ généré, est disponible dans [`backstage/README.md`](backstage/README.md#test-
 
 ## Image Docker
 
-GitLab CI utilise `full-ci-buildah` avec Sonar et Nexus IQ. Par défaut, Maven et
-le conteneur utilisent l'ancienne image Java 25 de Jib ; `JAVA_RUNTIME_IMAGE`
-peut être remplacée par une image d'exécution plus légère.
+GitLab CI construit le JAR avec Maven, puis l'image avec `full-ci-buildah`.
+`JAVA_RUNTIME_IMAGE` désigne l'image Java 25 servant de base au conteneur.
 
-En local (PowerShell), définir `JAVA_RUNTIME_IMAGE`, puis lancer depuis la racine :
+En local (PowerShell), définir `JAVA_RUNTIME_IMAGE` avec une image accessible à
+Podman, puis lancer depuis la racine :
 
 ```powershell
 mvn clean verify
-docker build --build-arg JAVA_RUNTIME_IMAGE=$env:JAVA_RUNTIME_IMAGE -t filjava-backend .
+podman build --build-arg JAVA_RUNTIME_IMAGE=$env:JAVA_RUNTIME_IMAGE -t filjava-backend .
 ```
 
 ## Vérification
