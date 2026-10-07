@@ -145,8 +145,8 @@ Le template nécessite :
 - Java 25
 - Maven 3.9 ou supérieur
 - Git
-- Podman pour utiliser une base de données PostgreSQL locale, ou un accès à une
-  base de données PostgreSQL externe
+- Podman pour construire l'image de l'application ou utiliser une base de
+  données PostgreSQL locale, ou un accès à une base de données PostgreSQL externe
 
 L'utilisation d'IntelliJ IDEA est recommandée.
 
@@ -189,6 +189,19 @@ Maven est disponible.
 
 La procédure complète, notamment la conservation et l'inspection du projet
 généré, est disponible dans [`backstage/README.md`](backstage/README.md#test-local).
+
+## Image Docker
+
+GitLab CI construit le JAR avec Maven, puis l'image avec `full-ci-buildah`.
+`JAVA_RUNTIME_IMAGE` désigne l'image Java 25 servant de base au conteneur.
+
+En local (PowerShell), définir `JAVA_RUNTIME_IMAGE` avec une image accessible à
+Podman, puis lancer depuis la racine :
+
+```powershell
+mvn clean verify
+podman build --build-arg JAVA_RUNTIME_IMAGE=$env:JAVA_RUNTIME_IMAGE -t filjava-backend .
+```
 
 ## Vérification
 
@@ -381,12 +394,16 @@ DB_HOST=***
 DB_NAME=***
 DB_USERNAME=***
 DB_PASSWORD=***
+HAZELCAST_SERVICE_DNS=***
 ```
 
 Pour une base PostgreSQL locale démarrée avec Podman, voir la section
 [Base de données PostgreSQL locale](#base-de-données-postgresql-locale).
 
 Les valeurs sont propres à l'environnement et ne doivent pas être versionnées.
+`HAZELCAST_SERVICE_DNS` est requis avec le profil `prod` : il désigne le service
+DNS permettant aux membres Hazelcast de se découvrir. Ils échangent les sessions
+sur le port TCP 5701.
 
 Le secret du client GINA est utilisé uniquement par le backend pour initier la
 connexion OIDC. Il ne doit jamais être exposé au frontend ni versionné.
