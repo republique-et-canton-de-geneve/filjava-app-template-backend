@@ -394,12 +394,16 @@ DB_HOST=***
 DB_NAME=***
 DB_USERNAME=***
 DB_PASSWORD=***
+HAZELCAST_SERVICE_DNS=***
 ```
 
 Pour une base PostgreSQL locale démarrée avec Podman, voir la section
 [Base de données PostgreSQL locale](#base-de-données-postgresql-locale).
 
 Les valeurs sont propres à l'environnement et ne doivent pas être versionnées.
+`HAZELCAST_SERVICE_DNS` est requis avec le profil `prod` : il désigne le service
+DNS permettant aux membres Hazelcast de se découvrir. Ils échangent les sessions
+sur le port TCP 5701.
 
 Le secret du client GINA est utilisé uniquement par le backend pour initier la
 connexion OIDC. Il ne doit jamais être exposé au frontend ni versionné.
