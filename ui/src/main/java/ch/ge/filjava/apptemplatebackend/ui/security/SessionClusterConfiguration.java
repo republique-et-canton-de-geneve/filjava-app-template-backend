@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Profile;
 @EnableHazelcastHttpSession
 public class SessionClusterConfiguration {
 
+    private static final int HAZELCAST_MEMBER_PORT = 5701;
+
     @Bean(destroyMethod = "shutdown")
     HazelcastInstance hazelcastInstance(Config config) {
         return Hazelcast.newHazelcastInstance(config);
@@ -37,7 +39,7 @@ public class SessionClusterConfiguration {
             throw new IllegalArgumentException("HAZELCAST_SERVICE_DNS doit être renseigné en production");
         }
         Config config = baseConfig(clusterName);
-        config.getNetworkConfig().setPort(5701).setPortAutoIncrement(false);
+        config.getNetworkConfig().setPort(HAZELCAST_MEMBER_PORT).setPortAutoIncrement(false);
         config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
                 .setProperty("service-dns", serviceDns);
         return config;
